@@ -37,10 +37,11 @@ module RISCV_CPU(
     wire OverflowFlag;
     wire SignFlag;
     wire PCWrite;
-    
+    wire PCMuxSelector;
+
     assign leds = (led_Selection==2'b00)? instruction [15:0] :
     ((led_Selection==2'b01)?instruction [31:16] : 
-    {2'b00,Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUSrc, RegWrite,ALUSelection, Zflag , BranchAndGate });
+    {2'b00,Branch, MemRead, MemtoReg, ALUOp, MemWrite, ALUSrc, RegWrite,ALUSelection, Zflag , PCMuxSelector });
     
     wire[31:0] PCOutput;
     wire[31:0] Pc4Out;
@@ -109,7 +110,9 @@ module RISCV_CPU(
 
     ControlUnit ControlUnit_inst(.inst20(instruction[20]),.instruction_opcode(`OPCODE),.Branch(Branch),.MemRead(MemRead),.MemtoReg(MemtoReg),.ALUOp(ALUOp),.MemWrite(MemWrite),.ALUSrc(ALUSrc),.RegWrite(RegWrite),.PCWrite(PCWrite));
     
-    RegFile #(32) RegFile_inst(.clk(clk),.rst(rst),.write_data(RegFileInputData),.read_reg_1(instruction[`IR_rs1]), .read_reg_2(instruction[`IR_rs2]),.write_reg(instruction[`IR_rd]),.RegWrite(RegWrite),.read_data_1(Rs1Read),.read_data_2(Rs2Read));
+    wire [31:0] FinalRegFileData;
+
+    RegFile #(32) RegFile_inst(.clk(clk),.rst(rst),.write_data(FinalRegFileData),.read_reg_1(instruction[`IR_rs1]), .read_reg_2(instruction[`IR_rs2]),.write_reg(instruction[`IR_rd]),.RegWrite(RegWrite),.read_data_1(Rs1Read),.read_data_2(Rs2Read));
     
     ImmGen ImmGen_inst(.instruction(instruction),.Imm(ImmGenOut));
     
@@ -119,7 +122,16 @@ module RISCV_CPU(
     
     NbitRCA #(32) PCBranchCalc(.input_1(PCOutput),.input_0(ShiftLeft1Out),.Carry_in(0),.Sum(BranchTarget),.Carry_out(/*ignore1*/));
     
-    NBit2x1Mux #(32) PCMux(.mux_input_1(BranchTarget),.mux_input_0(Pc4Out),.selection_bit(branchMuxSelect),.mux_out(PCInput));
+    
+    assign PCMuxSelector = branchMuxSelect || (`OPCODE == `OPCODE_JAL) || (`OPCODE == `OPCODE_JALR);
+    
+    wire PCMuxSecondSourceMuxSelector;
+    assign PCMuxSecondSourceMuxSelector = (`OPCODE == `OPCODE_JALR);
+    
+    wire PCSecondSource;
+    NBit2x1Mux #(32) PCMuxSecondSourceMux(.mux_input_1(AluOut),.mux_input_0(BranchTarget),.selection_bit(PCMuxSecondSourceMuxSelector),.mux_out(PCSecondSource));
+    
+    NBit2x1Mux #(32) PCMux(.mux_input_1(PCSecondSource),.mux_input_0(Pc4Out),.selection_bit(PCMuxSelector),.mux_out(PCInput));
     
     NBit2x1Mux #(32) RegMux(.mux_input_1(ImmGenOut),.mux_input_0(Rs2Read),.selection_bit(ALUSrc),.mux_out(Alu2ndSource));
     
@@ -134,5 +146,9 @@ module RISCV_CPU(
     DataMemory dataMem(.clk(clk),.MemRead(MemRead),.MemWrite(MemWrite),.func3(instruction[IR_funct3]),.addr(AluOut),.data_in(Rs2Read),.data_out(MemOut));
     
     NBit2x1Mux #(32) dataMux(.mux_input_1(MemOut),.mux_input_0(AluOut),.selection_bit(MemtoReg),.mux_out(RegFileInputData));
+    
+    wire [1:0] rfWriteSelect;
+    //wire [31:0] FinalRegFileData;
+    FourByOneMux RegisterFileWriteDataMux(.mux_input_3(Pc4Out),.mux_input_2(BranchTarget),.mux_input_1(ImmGenOut),.mux_input_0(RegFileInputData),.selection_bits(rfWriteSelect),.mux_out(FinalRegFileData));
     
 endmodule

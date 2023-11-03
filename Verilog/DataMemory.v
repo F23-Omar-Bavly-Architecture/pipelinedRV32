@@ -15,7 +15,7 @@
 **********************************************************************/
 
 
-module DataMemory(input clk, input MemRead, input MemWrite, input [2:0] func3, input [31:0] addr, input [31:0] data_in, output [31:0] data_out);
+module DataMemory(input clk, input MemRead, input MemWrite, input [2:0] func3, input [31:0] addr, input [31:0] data_in, output reg [31:0] data_out);
     /* old version
     reg [31:0] mem [0:63];
     assign data_out = MemRead? mem [addr] : 0;
@@ -40,7 +40,7 @@ module DataMemory(input clk, input MemRead, input MemWrite, input [2:0] func3, i
     always@(*) begin
     case(func3)
         0: data_out = {{24{mem[addr][7]}} , mem[addr]};
-        1: data_out = {{16{mem[add+1][7]}},mem[addr+1],mem[addr]};
+        1: data_out = {{16{mem[addr+1][7]}},mem[addr+1],mem[addr]};
         2: data_out = {mem[addr+3],mem[addr+2],mem[addr+1],mem[addr]};
         4: data_out = {{24{1'b0}} , mem[addr]};
         5: data_out = {{16{1'b0}},mem[addr+1],mem[addr]};

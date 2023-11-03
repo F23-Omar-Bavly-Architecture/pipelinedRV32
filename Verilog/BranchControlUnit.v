@@ -19,7 +19,7 @@ module BranchControlUnit(
     input vf, 
     input sf, 
     input [2:0] func3, 
-    output branchMuxSelect
+    output reg branchMuxSelect
     );
     
     always@(*) begin
