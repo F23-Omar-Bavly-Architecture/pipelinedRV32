@@ -1,37 +1,30 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/03/2023 11:43:53 AM
-// Design Name: 
-// Module Name: TOPModule
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+`include "defines.v"
+/*******************************************************************
+*
+* Module: TOPModule.v
+* Project: SingleCycleRV32I
+* Author: Omar Elfouly omarelfouly@aucegypt.edu and Bavly Remon bavly.remon2004@aucegypt.edu
+* Description: module responsible for organising RISCV and SevenSegDisplay inputs and outputs
+*
+* Change history:   11/3/2023 - Import from lab 6
+*                   11/3/2023 - Adds Comment and includes define
+*
+**********************************************************************/
 
 
 module topModule(
     input clk,
-    input reset,
-    input [1:0] ledSel,
-    input [3:0] ssdSel,
-    input SSD_clk,
+    input rst,
+    input [1:0] led_Selection,
+    input [3:0] ssd_Selection,
+    input clk_ssd_button,
     output [15:0] leds,
-    output [7:0] Anode,
-    output [6:0] LED_out
+    output [7:0] anode_active,
+    output [6:0] segments
     );
-    wire [12:0] sevenSegIn;
-    SevenSegDisplay sevenSeg(.clk(SSD_clk),.num(sevenSegIn),.Anode(Anode),.LED_out(LED_out));
-    RISCV computer(.clk(clk),.reset(reset),.ledSel(ledSel),.ssdSel(ssdSel),.leds(leds),.ssd(sevenSegIn));
+    wire [12:0] sevenSegDisplayInput;
+    SevenSegDisplay sevenSeg(.clk(clk_ssd_button),.num(sevenSegDisplayInput),.anode_active(anode_active),.segments(segments));
+    RISCV_CPU computer(.clk(clk),.rst(rst),.led_Selection(led_Selection),.ssd_Selection(ssd_Selection),.leds(leds),.ssd(sevenSegDisplayInput));
     
     endmodule 

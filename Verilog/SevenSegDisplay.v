@@ -1,30 +1,23 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/03/2023 12:03:28 PM
-// Design Name: 
-// Module Name: SevenSegDisplay
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+`include "defines.v"
+/*******************************************************************
+*
+* Module: SevenSegDisplay.v
+* Project: SingleCycleRV32I
+* Author: Omar Elfouly omarelfouly@aucegypt.edu and Bavly Remon bavly.remon2004@aucegypt.edu
+* Description: module responsible for displaying outputs on Seven segment display
+*
+* Change history:   11/3/2023 - Import from lab 6
+*                   11/3/2023 - Adds Comment and includes define
+*
+**********************************************************************/
 
 
 module SevenSegDisplay(
-  input clk,
+    input clk,
     input [12:0] num,
-    output reg [7:0] Anode,
-    output reg [6:0] LED_out
+    output reg [7:0] anode_active,
+    output reg [6:0] segments
     );
      
     wire [3:0] Thousands;
@@ -44,25 +37,25 @@ module SevenSegDisplay(
     assign LED_activating_counter = refresh_counter[19:18];
     always @(*)
     begin
-        Anode [7:4] = 4'b1111;
+        anode_active [7:4] = 4'b1111;
         case(LED_activating_counter)
             2'b00: begin
-                Anode [3:0] = 4'b0111;
+                anode_active [3:0] = 4'b0111;
                 LED_BCD = Thousands ;
             end
             
             2'b01: begin
-                Anode[3:0] = 4'b1011;
+                anode_active[3:0] = 4'b1011;
                 LED_BCD = Hundreds ;
             end
             
             2'b10: begin
-                Anode[3:0] = 4'b1101;
+                anode_active[3:0] = 4'b1101;
                 LED_BCD = Tens ;
             end
             
             2'b11: begin
-                Anode[3:0] = 4'b1110;
+                anode_active[3:0] = 4'b1110;
                 LED_BCD = Ones ;
             end
         
@@ -71,17 +64,17 @@ module SevenSegDisplay(
     always @(*)
         begin
             case(LED_BCD)
-                4'b0000: LED_out = 7'b0000001; // "0"
-                4'b0001: LED_out = 7'b1001111; // "1"
-                4'b0010: LED_out = 7'b0010010; // "2"
-                4'b0011: LED_out = 7'b0000110; // "3"
-                4'b0100: LED_out = 7'b1001100; // "4"
-                4'b0101: LED_out = 7'b0100100; // "5"
-                4'b0110: LED_out = 7'b0100000; // "6"
-                4'b0111: LED_out = 7'b0001111; // "7"
-                4'b1000: LED_out = 7'b0000000; // "8"   
-                4'b1001: LED_out = 7'b0000100; // "9"
-                default: LED_out = 7'b0000001; // "0"
+                4'b0000: segments = 7'b0000001; // "0"
+                4'b0001: segments = 7'b1001111; // "1"
+                4'b0010: segments = 7'b0010010; // "2"
+                4'b0011: segments = 7'b0000110; // "3"
+                4'b0100: segments = 7'b1001100; // "4"
+                4'b0101: segments = 7'b0100100; // "5"
+                4'b0110: segments = 7'b0100000; // "6"
+                4'b0111: segments = 7'b0001111; // "7"
+                4'b1000: segments = 7'b0000000; // "8"   
+                4'b1001: segments = 7'b0000100; // "9"
+                default: segments = 7'b0000001; // "0"
             endcase
         end
     

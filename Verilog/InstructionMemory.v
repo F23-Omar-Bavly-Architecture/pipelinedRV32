@@ -1,26 +1,20 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/03/2023 11:32:09 AM
-// Design Name: 
-// Module Name: InstructionMemory
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+`include "defines.v"
+/*******************************************************************
+*
+* Module: InstructionMemory.v
+* Project: SingleCycleRV32I
+* Author: Omar Elfouly omarelfouly@aucegypt.edu and Bavly Remon bavly.remon2004@aucegypt.edu
+* Description: module responsible for implmenting Instruction Memory
+*
+* Change history:   11/3/2023 - Import from lab 6
+*                   11/3/2023 - Adds Comment and includes define
+*                   11/3/2023 - Adapted to example given on slides
+*
+**********************************************************************/
 
-module InstructionMemory (input [5:0] addr, output [31:0] data_out);
-    reg [31:0] mem [0:63];
+module InstructionMemory (input [29:0] addr, output [31:0] data_out);
+    /*reg [31:0] mem [0:63];
     assign data_out = mem[addr];
     initial begin
         mem[0]=32'b000000000000_00000_010_00001_0000011 ; //lw x1, 0(x0)
@@ -36,6 +30,14 @@ module InstructionMemory (input [5:0] addr, output [31:0] data_out);
         mem[10]=32'b0100000_00010_00001_000_01000_0110011 ; //sub x8, x1, x2
         mem[11]=32'b0000000_00010_00001_000_00000_0110011 ; //add x0, x1, x2
         mem[12]=32'b0000000_00001_00000_000_01001_0110011 ; //add x9, x0, x1
-    end 
+    end */
+    
+    reg [7:0] mem[(4*1024-1):0]; // 4 KB memory
+    
+    assign data_out = {mem[{addr,2'b11}],mem[{addr,2'b10}],mem[{addr,2'b01}],mem[{addr,2'b00}]};
+    
+    initial begin
+        $readmemh("./hex/test1_mem.hex", mem);
+    end
 
 endmodule

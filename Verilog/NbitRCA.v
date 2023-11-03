@@ -1,46 +1,38 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/03/2023 11:37:07 AM
-// Design Name: 
-// Module Name: NbitRCA
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+`include "defines.v"
+/*******************************************************************
+*
+* Module: NbitRCA.v
+* Project: SingleCycleRV32I
+* Author: Omar Elfouly omarelfouly@aucegypt.edu and Bavly Remon bavly.remon2004@aucegypt.edu
+* Description: module responsible for implmenting an n bit ripple carry adder
+*
+* Change history:   11/3/2023 - Import from lab 6
+*                   11/3/2023 - Adds Comment and includes define
+*
+**********************************************************************/
 
 
 module NbitRCA #(N=8)(
-    input [N-1:0] A,
-    input [N-1:0] B,
-    input Cin,
+    input [N-1:0] input_1,
+    input [N-1:0] input_0,
+    input Carry_in,
     output [N-1:0] Sum,
-    output Cout
+    output Carry_out
     );
     
     wire [N:0] Carrys;
-    //assign Carrys[0]=1'b0;
     
-    assign Carrys[0] = Cin;
+    assign Carrys[0] = Carry_in;
     genvar i;
     
     generate
         for(i=0;i<N;i=i+1) begin
-            FullAdder inst(.A(A[i]),.B(B[i]),.Cin(Carrys[i]),.Sum(Sum[i]),.Cout(Carrys[i+1]));
+            FullAdder inst(.input_1(input_1[i]),.input_0(input_0[i]),.Carry_in(Carrys[i]),.Sum(Sum[i]),.Carry_out(Carrys[i+1]));
         end
     endgenerate
     
     
-    assign Cout = Carrys[N];
+    assign Carry_out = Carrys[N];
     
 endmodule
