@@ -32,7 +32,7 @@ module RISCV_CPU(
     wire RegWrite;
     wire [3:0] ALUSelection;
     wire Zflag;
-    wire BranchAndGate;
+    wire branchMuxSelect;//wire BranchAndGate;
     wire CarryFlag;
     wire OverflowFlag;
     wire SignFlag;
@@ -119,7 +119,7 @@ module RISCV_CPU(
     
     NbitRCA #(32) PCBranchCalc(.input_1(PCOutput),.input_0(ShiftLeft1Out),.Carry_in(0),.Sum(BranchTarget),.Carry_out(/*ignore1*/));
     
-    NBit2x1Mux #(32) PCMux(.mux_input_1(BranchTarget),.mux_input_0(Pc4Out),.selection_bit(BranchAndGate),.mux_out(PCInput));
+    NBit2x1Mux #(32) PCMux(.mux_input_1(BranchTarget),.mux_input_0(Pc4Out),.selection_bit(branchMuxSelect),.mux_out(PCInput));
     
     NBit2x1Mux #(32) RegMux(.mux_input_1(ImmGenOut),.mux_input_0(Rs2Read),.selection_bit(ALUSrc),.mux_out(Alu2ndSource));
     
@@ -127,7 +127,9 @@ module RISCV_CPU(
     
     ALU_32_bit ALU_32_bit_inst(.a(Rs1Read),.b(Alu2ndSource),.shamt(instruction[IR_shamt]),.r(AluOut),.cf(CarryFlag), .zf(Zflag), .vf(OverflowFlag), .sf(SignFlag), .alufn(ALUSelection));
     
-    and andBranch(BranchAndGate, Branch, Zflag);//assign BranchAndGate = Zflag & Branch;
+    //and andBranch(BranchAndGate, Branch, Zflag);//assign BranchAndGate = Zflag & Branch;
+    
+    BranchControlUnit BranchControlUnit_inst(.Branch(Branch),.cf(CarryFlag),.zf(Zflag),.vf(OverflowFlag),.sf(SignFlag),.func3(instruction[`IR_funct3]),.branchMuxSelect(branchMuxSelect));
     
     DataMemory dataMem(.clk(clk),.MemRead(MemRead),.MemWrite(MemWrite),.func3(instruction[IR_funct3]),.addr(AluOut),.data_in(Rs2Read),.data_out(MemOut));
     

@@ -2,10 +2,10 @@
 `include "defines.v"
 /*******************************************************************
 *
-* Module: NbitRCA.v
+* Module: ALU_32_bit.v
 * Project: SingleCycleRV32I
 * Author: Omar Elfouly omarelfouly@aucegypt.edu and Bavly Remon bavly.remon2004@aucegypt.edu
-* Description: module responsible for implmenting an n bit ripple carry adder
+* Description: module responsible for implmenting a 32 bit arithimitic logic unit
 *
 * Change history:   11/3/2023 - Import from Supproting Code
 *                   11/3/2023 - Adds Comment and includes define
