@@ -31,11 +31,8 @@ module DataMemory(input clk, input MemRead, input MemWrite, input [2:0] func3, i
         mem[2]=32'd25;
     end */
     
-    reg [7:0] mem[(4*1024-1):0];
-    
-//    assign data_out = MemRead? (func3==3'b000)? {24{mem[addr][7]},mem[addr]}:
-//    {mem[{addr,2'b11}],mem[{addr,2'b10}],mem[{addr,2'b01}],mem[{addr,2'b00}]} 
-//    : 0;
+    //reg [7:0] mem[(4*1024-1):0];
+    reg [7:0] mem [1024-1:0];
     
     always@(*) begin
     case(func3)

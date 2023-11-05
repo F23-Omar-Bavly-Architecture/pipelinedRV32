@@ -32,7 +32,8 @@ module InstructionMemory (input [29:0] addr, output [31:0] data_out);
         mem[12]=32'b0000000_00001_00000_000_01001_0110011 ; //add x9, x0, x1
     end */
     
-    reg [7:0] mem[(4*1024-1):0]; // 4 KB memory
+    //reg [7:0] mem[(4*1024-1):0]; // 4 KB memory
+    reg [7:0] mem [1023:0];
     
     assign data_out = {mem[{addr,2'b11}],mem[{addr,2'b10}],mem[{addr,2'b01}],mem[{addr,2'b00}]};
     
