@@ -15,6 +15,7 @@
 module ALU_32_bit(
 	input   wire [31:0] a, b,
 	input   wire [4:0]  shamt,
+	input wire instruction5,
 	output  reg  [31:0] r,
 	output  wire        cf, zf, vf, sf,
 	input   wire [3:0]  alufn
@@ -22,7 +23,10 @@ module ALU_32_bit(
 
     wire [31:0] add, sub, op_b;
     wire cfa, cfs;
-    
+    wire signed  [31:0] a_s;
+    assign a_s = a;
+    wire signed [4:0]  shamt_s;
+    assign shamt_s =  shamt;
     assign op_b = (~b);
     
     assign {cf, add} = alufn[0] ? (a + op_b + 1'b1) : (a + b);
@@ -47,9 +51,22 @@ module ALU_32_bit(
             `ALU_AND:  r = a & b;
             `ALU_XOR:  r = a ^ b;
             // shift
-            `ALU_SRL:  r = a >> shamt;//r=sh;
-            `ALU_SLL:  r = a << shamt;
-            `ALU_SRA:  r = a >>> shamt;
+            `ALU_SRL:begin  
+                        if(instruction5==1'b0)
+                            r = a >> shamt;//r=sh;
+                        else r = a >> b[4:0];
+                            
+                    end
+            `ALU_SLL:begin  
+                        if(instruction5==1'b0)
+                            r = a << shamt;
+                        else r = a << b[4:0];
+                    end
+            `ALU_SRA:begin 
+                        if(instruction5==1'b0)
+                            r = a_s >>> shamt_s;
+                        else r = a_s >>> b[4:0];
+                    end
             // slt & sltu
             `ALU_SLT:  r = {31'b0,(sf != vf)}; 
             `ALU_SLTU:  r = {31'b0,(~cf)};            	

@@ -139,7 +139,7 @@ module RISCV_CPU(
     
     //NbitAlu#(32) alu(.Alu1stSource(Rs1Read),.Alu2ndSource(Alu2ndSource),.ALUSelection(ALUSelection),.AluOut(AluOut),.Zflag(Zflag));
     
-    ALU_32_bit ALU_32_bit_inst(.a(Rs1Read),.b(Alu2ndSource),.shamt(instruction[`IR_shamt]),.r(AluOut),.cf(CarryFlag), .zf(Zflag), .vf(OverflowFlag), .sf(SignFlag), .alufn(ALUSelection));
+    ALU_32_bit ALU_32_bit_inst(.instruction5(instruction5),.a(Rs1Read),.b(Alu2ndSource),.shamt(instruction[`IR_shamt]),.r(AluOut),.cf(CarryFlag), .zf(Zflag), .vf(OverflowFlag), .sf(SignFlag), .alufn(ALUSelection));
     
     //and andBranch(BranchAndGate, Branch, Zflag);//assign BranchAndGate = Zflag & Branch;
     
