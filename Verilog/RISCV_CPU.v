@@ -107,8 +107,9 @@ module RISCV_CPU(
     NbitRCA #(32) add4ToPC(.input_1(PCOutput),.input_0(`THIRTYTWO_FOUR),.Carry_in(`SINGLE_BIT_ZERO),.Sum(Pc4Out),.Carry_out(/*ignore*/));
     
     InstructionMemory InstructionMemory_inst(.addr(PCOutput[31:2]),.data_out(instruction)); // take all of PC except first two bits to divide by 4
-
-    ControlUnit ControlUnit_inst(.inst20(instruction[20]),.instruction_opcode(`OPCODE),.Branch(Branch),.MemRead(MemRead),.MemtoReg(MemtoReg),.ALUOp(ALUOp),.MemWrite(MemWrite),.ALUSrc(ALUSrc),.RegWrite(RegWrite),.PCWrite(PCWrite));
+    
+    wire [1:0] rfWriteSelect;
+    ControlUnit ControlUnit_inst(.inst20(instruction[20]),.instruction_opcode(`OPCODE),.Branch(Branch),.MemRead(MemRead),.MemtoReg(MemtoReg),.ALUOp(ALUOp),.MemWrite(MemWrite),.ALUSrc(ALUSrc),.RegWrite(RegWrite),.PCWrite(PCWrite),.rfWriteSelect(rfWriteSelect));
     
     wire [31:0] FinalRegFileData;
 
@@ -118,9 +119,10 @@ module RISCV_CPU(
     
     ALUControlUnit ALUControlUnit_inst(.ALUOp(ALUOp),.func3(instruction[`IR_funct3]),.inst30(instruction[30]),.ALUSelection(ALUSelection));
     
-    NBitShiftLeft1 #(32) ShiftLeft(.input_data(ImmGenOut),.output_data(ShiftLeft1Out));
+    //NBitShiftLeft1 #(32) ShiftLeft(.input_data(ImmGenOut),.output_data(ShiftLeft1Out));
     
-    NbitRCA #(32) PCBranchCalc(.input_1(PCOutput),.input_0(ShiftLeft1Out),.Carry_in(0),.Sum(BranchTarget),.Carry_out(/*ignore1*/));
+    //NbitRCA #(32) PCBranchCalc(.input_1(PCOutput),.input_0(ShiftLeft1Out),.Carry_in(1'b0),.Sum(BranchTarget),.Carry_out(/*ignore1*/));
+    NbitRCA #(32) PCBranchCalc(.input_1(PCOutput),.input_0(ImmGenOut),.Carry_in(1'b0),.Sum(BranchTarget),.Carry_out(/*ignore1*/));
     
     
     assign PCMuxSelector = branchMuxSelect || (`OPCODE == `OPCODE_JAL) || (`OPCODE == `OPCODE_JALR);
@@ -128,7 +130,7 @@ module RISCV_CPU(
     wire PCMuxSecondSourceMuxSelector;
     assign PCMuxSecondSourceMuxSelector = (`OPCODE == `OPCODE_JALR);
     
-    wire PCSecondSource;
+    wire [31:0] PCSecondSource;
     NBit2x1Mux #(32) PCMuxSecondSourceMux(.mux_input_1(AluOut),.mux_input_0(BranchTarget),.selection_bit(PCMuxSecondSourceMuxSelector),.mux_out(PCSecondSource));
     
     NBit2x1Mux #(32) PCMux(.mux_input_1(PCSecondSource),.mux_input_0(Pc4Out),.selection_bit(PCMuxSelector),.mux_out(PCInput));
@@ -137,17 +139,17 @@ module RISCV_CPU(
     
     //NbitAlu#(32) alu(.Alu1stSource(Rs1Read),.Alu2ndSource(Alu2ndSource),.ALUSelection(ALUSelection),.AluOut(AluOut),.Zflag(Zflag));
     
-    ALU_32_bit ALU_32_bit_inst(.a(Rs1Read),.b(Alu2ndSource),.shamt(instruction[IR_shamt]),.r(AluOut),.cf(CarryFlag), .zf(Zflag), .vf(OverflowFlag), .sf(SignFlag), .alufn(ALUSelection));
+    ALU_32_bit ALU_32_bit_inst(.a(Rs1Read),.b(Alu2ndSource),.shamt(instruction[`IR_shamt]),.r(AluOut),.cf(CarryFlag), .zf(Zflag), .vf(OverflowFlag), .sf(SignFlag), .alufn(ALUSelection));
     
     //and andBranch(BranchAndGate, Branch, Zflag);//assign BranchAndGate = Zflag & Branch;
     
     BranchControlUnit BranchControlUnit_inst(.Branch(Branch),.cf(CarryFlag),.zf(Zflag),.vf(OverflowFlag),.sf(SignFlag),.func3(instruction[`IR_funct3]),.branchMuxSelect(branchMuxSelect));
     
-    DataMemory dataMem(.clk(clk),.MemRead(MemRead),.MemWrite(MemWrite),.func3(instruction[IR_funct3]),.addr(AluOut),.data_in(Rs2Read),.data_out(MemOut));
+    DataMemory dataMem(.clk(clk),.MemRead(MemRead),.MemWrite(MemWrite),.func3(instruction[`IR_funct3]),.addr(AluOut),.data_in(Rs2Read),.data_out(MemOut));
     
     NBit2x1Mux #(32) dataMux(.mux_input_1(MemOut),.mux_input_0(AluOut),.selection_bit(MemtoReg),.mux_out(RegFileInputData));
     
-    wire [1:0] rfWriteSelect;
+    
     //wire [31:0] FinalRegFileData;
     FourByOneMux RegisterFileWriteDataMux(.mux_input_3(Pc4Out),.mux_input_2(BranchTarget),.mux_input_1(ImmGenOut),.mux_input_0(RegFileInputData),.selection_bits(rfWriteSelect),.mux_out(FinalRegFileData));
     

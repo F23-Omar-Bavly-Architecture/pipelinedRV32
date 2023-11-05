@@ -33,12 +33,31 @@ module InstructionMemory (input [29:0] addr, output [31:0] data_out);
     end */
     
     //reg [7:0] mem[(4*1024-1):0]; // 4 KB memory
-    reg [7:0] mem [1023:0];
+//    reg [7:0] mem [1023:0];
+    reg [7:0] mem [63:0];
     
     assign data_out = {mem[{addr,2'b11}],mem[{addr,2'b10}],mem[{addr,2'b01}],mem[{addr,2'b00}]};
     
     initial begin
-        $readmemh("./hex/test1_mem.hex", mem);
+//        $readmemh("../Test/Hex/test1_mem.hex", mem);
+        // LUI test cases
+        {mem[3],mem[2],mem[1],mem[0]}=32'b00000000000001100100000010110111; //lui x1, 100
+        {mem[7],mem[6],mem[5],mem[4]}=32'b11111111111110011100000100110111; // lui x2,-100
+        {mem[11],mem[10],mem[9],mem[8]}=32'b00000000000000000000000110110111; //lui x3, 0
+        
+        //AUIPC
+        {mem[15],mem[14],mem[13],mem[12]}=32'b00000000000000000001001000010111;//auipc x4, 1
+        {mem[19],mem[18],mem[17],mem[16]} = 32'b00000000000000000000001000010111; //auipc x4, 0
+        {mem[23],mem[22],mem[21],mem[20]} = 32'b11111111111110011100001000010111; //auipc x4, -100
+        
+        //JAL
+        {mem[27],mem[26],mem[25],mem[24]} = 32'b00000000100000000000001011101111; // jal x5, 8
+        {mem[31],mem[30],mem[29],mem[28]} = 32'b00000000100000000000001011101111; //jal x5, 8
+        {mem[35],mem[34],mem[33],mem[32]} = 32'b11111111110111111111001011101111; //jal x5, -4
+        
+        
+        
+        //{mem[39],mem[38],mem[37],mem[36]} = 32'b
     end
 
 endmodule
