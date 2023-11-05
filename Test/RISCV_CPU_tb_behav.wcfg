@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="229.930 ns"></ZoomStartTime>
-      <ZoomEndTime time="754.331 ns"></ZoomEndTime>
-      <Cursor1Time time="680.212 ns"></Cursor1Time>
+      <ZoomStartTime time="704.980 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,343.981 ns"></ZoomEndTime>
+      <Cursor1Time time="1,008.980 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="276"></NameColumnWidth>
       <ValueColumnWidth column_width="116"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="44" />
+   <WVObjectSize size="48" />
    <wvobject fp_name="/RISCV_CPU_tb/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -27,26 +27,6 @@
    <wvobject fp_name="/RISCV_CPU_tb/reset" type="logic">
       <obj_property name="ElementShortName">reset</obj_property>
       <obj_property name="ObjectShortName">reset</obj_property>
-   </wvobject>
-   <wvobject fp_name="/RISCV_CPU_tb/ledSel" type="array">
-      <obj_property name="ElementShortName">ledSel[1:0]</obj_property>
-      <obj_property name="ObjectShortName">ledSel[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/RISCV_CPU_tb/ssdSel" type="array">
-      <obj_property name="ElementShortName">ssdSel[3:0]</obj_property>
-      <obj_property name="ObjectShortName">ssdSel[3:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/RISCV_CPU_tb/leds" type="array">
-      <obj_property name="ElementShortName">leds[15:0]</obj_property>
-      <obj_property name="ObjectShortName">leds[15:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/RISCV_CPU_tb/ssd" type="array">
-      <obj_property name="ElementShortName">ssd[12:0]</obj_property>
-      <obj_property name="ObjectShortName">ssd[12:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/RISCV_CPU_tb/period" type="array">
-      <obj_property name="ElementShortName">period[31:0]</obj_property>
-      <obj_property name="ObjectShortName">period[31:0]</obj_property>
    </wvobject>
    <wvobject type="divider" fp_name="divider28">
       <obj_property name="label">PC</obj_property>
@@ -69,6 +49,7 @@
    <wvobject fp_name="/RISCV_CPU_tb/ut/PCInput" type="array">
       <obj_property name="ElementShortName">PCInput[31:0]</obj_property>
       <obj_property name="ObjectShortName">PCInput[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/RISCV_CPU_tb/ut/PCMuxSecondSourceMuxSelector" type="logic">
       <obj_property name="ElementShortName">PCMuxSecondSourceMuxSelector</obj_property>
@@ -83,8 +64,8 @@
       <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/RISCV_CPU_tb/ut/InstructionMemory_inst/mem" type="array">
-      <obj_property name="ElementShortName">mem[23:0][7:0]</obj_property>
-      <obj_property name="ObjectShortName">mem[23:0][7:0]</obj_property>
+      <obj_property name="ElementShortName">mem[63:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">mem[63:0][7:0]</obj_property>
    </wvobject>
    <wvobject type="divider" fp_name="divider32">
       <obj_property name="label">Control Unit</obj_property>
@@ -150,6 +131,7 @@
       <obj_property name="ElementShortName">reg_file[31:0][31:0]</obj_property>
       <obj_property name="ObjectShortName">reg_file[31:0][31:0]</obj_property>
       <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/RISCV_CPU_tb/ut/RegFile_inst/reg_file[31]" type="array">
          <obj_property name="ElementShortName">[31][31:0]</obj_property>
          <obj_property name="ObjectShortName">[31][31:0]</obj_property>
@@ -363,5 +345,45 @@
    <wvobject fp_name="/RISCV_CPU_tb/ut/PCInput" type="array">
       <obj_property name="ElementShortName">PCInput[31:0]</obj_property>
       <obj_property name="ObjectShortName">PCInput[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider241">
+      <obj_property name="label">PCMuxSecondSourceMux</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/RISCV_CPU_tb/ut/AluOut" type="array">
+      <obj_property name="ElementShortName">AluOut[31:0]</obj_property>
+      <obj_property name="ObjectShortName">AluOut[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/RISCV_CPU_tb/ut/BranchTarget" type="array">
+      <obj_property name="ElementShortName">BranchTarget[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BranchTarget[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/RISCV_CPU_tb/ut/PCMuxSecondSourceMuxSelector" type="logic">
+      <obj_property name="ElementShortName">PCMuxSecondSourceMuxSelector</obj_property>
+      <obj_property name="ObjectShortName">PCMuxSecondSourceMuxSelector</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider246">
+      <obj_property name="label">ALU</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/RISCV_CPU_tb/ut/Alu2ndSource" type="array">
+      <obj_property name="ElementShortName">Alu2ndSource[31:0]</obj_property>
+      <obj_property name="ObjectShortName">Alu2ndSource[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/RISCV_CPU_tb/ut/Rs1Read" type="array">
+      <obj_property name="ElementShortName">Rs1Read[31:0]</obj_property>
+      <obj_property name="ObjectShortName">Rs1Read[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/RISCV_CPU_tb/ut/AluOut" type="array">
+      <obj_property name="ElementShortName">AluOut[31:0]</obj_property>
+      <obj_property name="ObjectShortName">AluOut[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/RISCV_CPU_tb/ut/ALUSelection" type="array">
+      <obj_property name="ElementShortName">ALUSelection[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ALUSelection[3:0]</obj_property>
    </wvobject>
 </wave_config>

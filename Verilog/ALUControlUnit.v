@@ -15,6 +15,7 @@
 
 module ALUControlUnit(
     input [1:0] ALUOp,
+    input instruction5,
     input [14:12] func3,
     input inst30,
     output reg [3:0] ALUSelection
@@ -27,20 +28,41 @@ module ALUControlUnit(
         end else if(ALUOp == 2'b01) begin
             ALUSelection = `ALU_SUB;
         end else if(ALUOp ==2'b10) begin // aluop 10
-            case(caseSelector)
-                4'b0000: ALUSelection = `ALU_ADD;
-                4'b0001: ALUSelection = `ALU_SUB;
-                4'b0010: ALUSelection = `ALU_SLL;
-                4'b0100: ALUSelection = `ALU_SLT; 
-                4'b0110: ALUSelection = `ALU_SLTU;
-                4'b1000: ALUSelection = `ALU_XOR;
-                4'b1010: ALUSelection = `ALU_SRL;
-                4'b1011: ALUSelection = `ALU_SRA;
-                4'b1100: ALUSelection = `ALU_OR;
-                4'b1110: ALUSelection = `ALU_AND;
-                
-                default: ALUSelection = `ALU_PASS;
-            endcase 
+            if(instruction5) begin
+                case(caseSelector)
+                    4'b0000: ALUSelection = `ALU_ADD;
+                    4'b0001: ALUSelection = `ALU_SUB;
+                    4'b0010: ALUSelection = `ALU_SLL;
+                    4'b0100: ALUSelection = `ALU_SLT; 
+                    4'b0110: ALUSelection = `ALU_SLTU;
+                    4'b1000: ALUSelection = `ALU_XOR;
+                    4'b1010: ALUSelection = `ALU_SRL;
+                    4'b1011: ALUSelection = `ALU_SRA;
+                    4'b1100: ALUSelection = `ALU_OR;
+                    4'b1110: ALUSelection = `ALU_AND;
+                    
+                    default: ALUSelection = `ALU_PASS;
+                endcase
+            end else begin
+                case(func3)
+                    0: ALUSelection = `ALU_ADD;
+                    4: ALUSelection = `ALU_XOR;
+                    6: ALUSelection = `ALU_OR;
+                    7: ALUSelection = `ALU_AND;
+                    1: ALUSelection = `ALU_SLL;
+                    5: begin
+                        if(inst30) begin
+                            ALUSelection = `ALU_SRA;
+                        end else begin
+                            ALUSelection = `ALU_SRL;
+                        end
+                       end
+                    2: ALUSelection = `ALU_SLT;
+                    3: ALUSelection = `ALU_SLTU;
+                    default: ALUSelection = `ALU_PASS;
+                endcase
+            
+            end
         end else begin
             ALUSelection = `ALU_PASS;
         end

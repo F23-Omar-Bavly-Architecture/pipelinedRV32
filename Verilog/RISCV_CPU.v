@@ -117,7 +117,7 @@ module RISCV_CPU(
     
     ImmGen ImmGen_inst(.instruction(instruction),.Imm(ImmGenOut));
     
-    ALUControlUnit ALUControlUnit_inst(.ALUOp(ALUOp),.func3(instruction[`IR_funct3]),.inst30(instruction[30]),.ALUSelection(ALUSelection));
+    ALUControlUnit ALUControlUnit_inst(.ALUOp(ALUOp),.func3(instruction[`IR_funct3]),.inst30(instruction[30]),.ALUSelection(ALUSelection),.instruction5(instruction[5]));
     
     //NBitShiftLeft1 #(32) ShiftLeft(.input_data(ImmGenOut),.output_data(ShiftLeft1Out));
     
