@@ -35,15 +35,18 @@ module DataMemory(input clk, input MemRead, input MemWrite, input [2:0] func3, i
     reg [7:0] mem [1024-1:0];
     
     always@(*) begin
-    case(func3)
-        0: data_out = {{24{mem[addr][7]}} , mem[addr]};
-        1: data_out = {{16{mem[addr+1][7]}},mem[addr+1],mem[addr]};
-        2: data_out = {mem[addr+3],mem[addr+2],mem[addr+1],mem[addr]};
-        4: data_out = {{24{1'b0}} , mem[addr]};
-        5: data_out = {{16{1'b0}},mem[addr+1],mem[addr]};
-        default: data_out = 0;
-    endcase
-    
+        if(MemRead) begin
+            case(func3)
+                0: data_out = {{24{mem[addr][7]}} , mem[addr]};
+                1: data_out = {{16{mem[addr+1][7]}},mem[addr+1],mem[addr]};
+                2: data_out = {mem[addr+3],mem[addr+2],mem[addr+1],mem[addr]};
+                4: data_out = {{24{1'b0}} , mem[addr]};
+                5: data_out = {{16{1'b0}},mem[addr+1],mem[addr]};
+                default: data_out = 0;
+            endcase
+        end else begin
+            data_out = 0;
+        end
     end
     
     always@(posedge clk) begin
