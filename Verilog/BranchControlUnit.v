@@ -31,6 +31,7 @@ module BranchControlUnit(
                 5: branchMuxSelect = sf == vf;
                 6: branchMuxSelect = ~cf;
                 7: branchMuxSelect = cf;
+                default: branchMuxSelect = 0;
             endcase
         end else begin
             branchMuxSelect =0;
