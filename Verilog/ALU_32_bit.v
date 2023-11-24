@@ -69,7 +69,8 @@ module ALU_32_bit(
                     end
             // slt & sltu
             `ALU_SLT:  r = {31'b0,(sf != vf)}; 
-            `ALU_SLTU:  r = {31'b0,(~cf)};            	
+            `ALU_SLTU:  r = {31'b0,(~cf)};
+            default: r = 32'd99;    	
         endcase
     end
 endmodule

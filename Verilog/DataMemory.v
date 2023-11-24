@@ -63,6 +63,7 @@ module DataMemory(input clk, input MemRead, input MemWrite, input [2:0] func3, i
                     mem[addr+1] = data_in[15:8];
                     mem[addr] = data_in[7:0];
                 end
+                default: mem[addr] = data_in[7:0];
             endcase
         end
     end
