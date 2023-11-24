@@ -66,17 +66,17 @@ module RISCV_CPU(
     wire [31:0] IF_ID_Inst;
     wire [31:0] IF_ID_Pc4Out;
     
-//    wire stall;
-//    wire stall_n;
-//    assign stall_n = ~stall;
-//    wire [31:0] InstOrFlush;
-//    assign InstOrFlush = PCSrc? 32'b00000000000000000000000000110011:instruction;
-    NBitRegister #(96) IF_ID (.clk(clk),.rst(rst),.load(/*stall_n*/1), 
-    .D({PCOutput, /*InstOrFlush*/instruction, Pc4Out}),.Q({IF_ID_PC,IF_ID_Inst,IF_ID_Pc4Out}));
+    wire stall;
+    wire stall_n;
+    assign stall_n = ~stall;
+    wire [31:0] InstOrFlush;
+    assign InstOrFlush = PCMuxSelector? 32'b00000000000000000000000000110011:instruction;
+    NBitRegister #(96) IF_ID (.clk(clk),.rst(rst),.load(stall_n), 
+    .D({PCOutput, InstOrFlush, Pc4Out}),.Q({IF_ID_PC,IF_ID_Inst,IF_ID_Pc4Out}));
     
     wire ID_EX_MemRead;
     wire [4:0] ID_EX_Rd;
-//    HazardDetectionUnit HazardDetectionUnit_INST( .IF_ID_Rs1(IF_ID_Inst[19:15]),.IF_ID_Rs2(IF_ID_Inst[24:20]),.ID_EX_Rd(ID_EX_Rd),.ID_EX_MemRead(ID_EX_MemRead),.stall(stall)); 
+    HazardDetectionUnit HazardDetectionUnit_INST( .IF_ID_Rs1(IF_ID_Inst[19:15]),.IF_ID_Rs2(IF_ID_Inst[24:20]),.ID_EX_Rd(ID_EX_Rd),.ID_EX_MemRead(ID_EX_MemRead),.stall(stall)); 
 
     
     wire [31:0] ID_EX_PC, ID_EX_RegR1, ID_EX_RegR2, ID_EX_Imm;
@@ -92,12 +92,13 @@ module RISCV_CPU(
     wire ID_EX_Inst_5;
     wire [4:0] ID_EX_Inst_Opcode;
     wire [31:0] ID_EX_Pc4Out;
-//    wire [7:0] ID_EX_Ctrl;
-//    NBit2x1Mux #(8) ID_EX_Stall_MUX(.A(8'd0),.B({RegWrite, MemtoReg, Branch, MemRead , MemWrite, ALUOp, ALUSrc}),.S(stall || PCSrc),.out(ID_EX_Ctrl));
+    wire [7:0] ID_EX_Ctrl;
+    
+    NBit2x1Mux #(8) ID_EX_Stall_MUX(.mux_input_1(8'd0),.mux_input_0({RegWrite, MemtoReg, Branch, MemRead , MemWrite, ALUOp, ALUSrc}),
+    .selection_bit(stall || PCMuxSelector),.mux_out(ID_EX_Ctrl));
 
     NBitRegister #(195)  ID_EX( .clk(clk),.rst(rst),.load(1'b1), 
-    .D({/*ID_EX_Ctrl*/RegWrite, MemtoReg, Branch, MemRead , MemWrite,
-     ALUOp, ALUSrc, rfWriteSelect, IF_ID_PC, Rs1Read , Rs2Read, ImmGenOut, IF_ID_Inst[30],
+    .D({ID_EX_Ctrl, rfWriteSelect, IF_ID_PC, Rs1Read , Rs2Read, ImmGenOut, IF_ID_Inst[30],
      IF_ID_Inst[14:12], IF_ID_Inst[19:15], IF_ID_Inst[24:20], IF_ID_Inst[11:7],
      IF_ID_Inst[5], IF_ID_Inst[`IR_opcode], IF_ID_Pc4Out}),
     .Q({ID_EX_RegWrite, ID_EX_MemtoReg, ID_EX_Branch, ID_EX_MemRead, 
@@ -105,13 +106,16 @@ module RISCV_CPU(
     ID_EX_RegR2,ID_EX_Imm, ID_EX_Func,ID_EX_Rs1,ID_EX_Rs2,ID_EX_Rd,
     ID_EX_Inst_5, ID_EX_Inst_Opcode, ID_EX_Pc4Out}));
 
-//    wire [1:0] forwardA;
-//    wire [1:0] forwardB;
+    wire [1:0] forwardA;
+    wire [1:0] forwardB;
     wire EX_MEM_RegWrite;
+    wire [4:0] MEM_WB_Rd;
     wire [4:0] EX_MEM_Rd;
     wire MEM_WB_RegWrite;
 
-//    ForwardingUnit ForwardingUnit_inst(.ID_EX_Rs1(ID_EX_Rs1), .ID_EX_Rs2(ID_EX_Rs2), .EX_MEM_Rd(EX_MEM_Rd), .MEM_WB_Rd(MEM_WB_Rd), .EX_MEM_RegWrite(EX_MEM_RegWrite), .MEM_WB_RegWrite(MEM_WB_RegWrite), .forwardA(forwardA), .forwardB(forwardB));
+    ForwardingUnit ForwardingUnit_inst(.ID_EX_Rs1(ID_EX_Rs1), .ID_EX_Rs2(ID_EX_Rs2), .EX_MEM_Rd(EX_MEM_Rd),
+    .MEM_WB_Rd(MEM_WB_Rd), .EX_MEM_RegWrite(EX_MEM_RegWrite), .MEM_WB_RegWrite(MEM_WB_RegWrite), 
+    .forwardA(forwardA), .forwardB(forwardB));
 
     wire [31:0] EX_MEM_ALU_out, EX_MEM_ALU_B;
     
@@ -129,12 +133,11 @@ module RISCV_CPU(
     wire [31:0] EX_MEM_BranchTarget;
     wire [31:0] EX_MEM_Imm;
     
-//    wire [4:0] EX_MEM_Ctrl_Input;
-//    assign EX_MEM_Ctrl_Input = PCSrc? 5'd0 : {ID_EX_RegWrite, ID_EX_MemtoReg, ID_EX_Branch, ID_EX_MemRead, ID_EX_MemWrite};
+    wire [4:0] EX_MEM_Ctrl_Input;
+    assign EX_MEM_Ctrl_Input = PCMuxSelector? 5'd0 : {ID_EX_RegWrite, ID_EX_MemtoReg, ID_EX_Branch, ID_EX_MemRead, ID_EX_MemWrite};
     wire [31:0] ALU_B;
     NBitRegister #(214) EX_MEM (.clk(clk),.rst(rst),.load(1'b1),
-    .D({/*EX_MEM_Ctrl_Input*/ID_EX_RegWrite, ID_EX_MemtoReg, ID_EX_Branch, 
-    ID_EX_MemRead, ID_EX_MemWrite, BranchTarget, Zflag, AluOut, ALU_B, ID_EX_Rd, ID_EX_rfWriteSelect,
+    .D({EX_MEM_Ctrl_Input, BranchTarget, Zflag, AluOut, ALU_B, ID_EX_Rd, ID_EX_rfWriteSelect,
     ID_EX_Inst_Opcode, ID_EX_Pc4Out, branchMuxSelect, ID_EX_Func[2:0], ID_EX_RegR2, ID_EX_Imm}),
     .Q({EX_MEM_RegWrite, EX_MEM_MemtoReg, EX_MEM_Branch, EX_MEM_MemRead, 
     EX_MEM_MemWrite, EX_MEM_BranchTarget, EX_MEM_Zero,EX_MEM_ALU_out, EX_MEM_ALU_B, EX_MEM_Rd,EX_MEM_rfWriteSelect,
@@ -142,7 +145,6 @@ module RISCV_CPU(
 
     wire [31:0] MEM_WB_Mem_out, MEM_WB_ALU_out;
     wire MEM_WB_MemtoReg;
-    wire [4:0] MEM_WB_Rd;
     wire [1:0] MEM_WB_rfWriteSelect;
     wire [31:0] MEM_WB_Pc4Out;
     wire [31:0] MEM_WB_BranchTarget;
@@ -150,18 +152,18 @@ module RISCV_CPU(
 
     NBitRegister #(169) MEM_WB (.clk(clk),.rst(rst),.load(1'b1),
     .D({EX_MEM_RegWrite, EX_MEM_MemtoReg, MemOut, EX_MEM_ALU_out, EX_MEM_Rd, EX_MEM_rfWriteSelect,
-    EX_MEM_Pc4Out, EX_MEM_BranchTarget, ID_EX_Imm}),
+    EX_MEM_Pc4Out, EX_MEM_BranchTarget, EX_MEM_Imm}),
     .Q({MEM_WB_RegWrite, MEM_WB_MemtoReg, MEM_WB_Mem_out, MEM_WB_ALU_out,MEM_WB_Rd, MEM_WB_rfWriteSelect,
     MEM_WB_Pc4Out, MEM_WB_BranchTarget, MEM_WB_Imm}));
 
-    NBitRegister #(32) PC(.clk(clk),.rst(rst),.load(PCWrite),.D(PCInput),.Q(PCOutput));
+    NBitRegister #(32) PC(.clk(clk),.rst(rst),.load(PCWrite && stall_n ),.D(PCInput),.Q(PCOutput));
     
     NbitRCA #(32) add4ToPC(.input_1(PCOutput),.input_0(`THIRTYTWO_FOUR),
     .Carry_in(`SINGLE_BIT_ZERO),.Sum(Pc4Out),.Carry_out(/*ignore*/));
     
     InstructionMemory InstructionMemory_inst(.addr(PCOutput[31:2]),.data_out(instruction)); // take all of PC except first two bits to divide by 4
     
-    // ID EX REG
+    // IF_ID REG
     
     ControlUnit ControlUnit_inst(.inst20(IF_ID_Inst[20]),.instruction_opcode(IF_ID_Inst[`IR_opcode]),
     .Branch(Branch),.MemRead(MemRead),.MemtoReg(MemtoReg),.ALUOp(ALUOp),
@@ -179,20 +181,30 @@ module RISCV_CPU(
     // ID_EX
     
     ALUControlUnit ALUControlUnit_inst(.ALUOp(ID_EX_ALUOp),.func3(ID_EX_Func[2:0]),
-    .inst30(ID_EX_Func[3]),.ALUSelection(ALUSelection),.instruction5(ID_EX_Inst_5)); // INST 5 must be added to ID_EX
+    .inst30(ID_EX_Func[3]),.ALUSelection(ALUSelection),.instruction5(ID_EX_Inst_5));
     
     NbitRCA #(32) PCBranchCalc(.input_1(ID_EX_PC),.input_0(ID_EX_Imm),.Carry_in(1'b0),
-    .Sum(BranchTarget),.Carry_out(/*ignore1*/));
+    .Sum(BranchTarget),.Carry_out(/*ignore*/));
     
-//    wire [31:0] ALU_A;
-//    Mux4x1 ALU_A_Mux(.mux_input_3(/*Ignore*/), .mux_input_2(EX_MEM_ALU_out), .mux_input_1(RegFileInputData), .mux_input_0(ID_EX_RegR1), .selection_bits(forwardA), .mux_out(ALU_A));
-//    wire [31:0] ALU_B;
-    assign ALU_B = 32'b0;
-//     Mux4x1 ALU_B_Mux(.mux_input_3(/*Ignore*/), .mux_input_2(EX_MEM_ALU_out), .mux_input_1(RegFileInputData), .mux_input_0(ID_EX_RegR2), .selection_bits(forwardB), .mux_out(ALU_B));
-    NBit2x1Mux #(32) RegMux(.mux_input_1(ID_EX_Imm),.mux_input_0(ID_EX_RegR2),
+    wire [31:0] EX_MEM_Forward;
+    FourByOneMux EX_MEM_FORWARD_MUX(.mux_input_3(EX_MEM_Pc4Out),
+    .mux_input_2(EX_MEM_BranchTarget),.mux_input_1(EX_MEM_Imm),
+    .mux_input_0(EX_MEM_ALU_out),.selection_bits(EX_MEM_rfWriteSelect),
+    .mux_out(EX_MEM_Forward));
+    
+    wire [31:0] ALU_A;
+    FourByOneMux ALU_A_Mux(.mux_input_3(/*Ignore*/), .mux_input_2(EX_MEM_Forward),
+    .mux_input_1(FinalRegFileData), .mux_input_0(ID_EX_RegR1), 
+    .selection_bits(forwardA), .mux_out(ALU_A));
+    
+    FourByOneMux ALU_B_Mux(.mux_input_3(/*Ignore*/), .mux_input_2(EX_MEM_Forward), 
+    .mux_input_1(FinalRegFileData), .mux_input_0(ID_EX_RegR2), 
+    .selection_bits(forwardB), .mux_out(ALU_B));
+    
+    NBit2x1Mux #(32) RegMux(.mux_input_1(ID_EX_Imm),.mux_input_0(ALU_B),
     .selection_bit(ID_EX_ALUSrc),.mux_out(Alu2ndSource));
     
-    ALU_32_bit ALU_32_bit_inst(.instruction5(ID_EX_Inst_5),.a(/*ALU_A*/ID_EX_RegR1),
+    ALU_32_bit ALU_32_bit_inst(.instruction5(ID_EX_Inst_5),.a(ALU_A),
     .b(Alu2ndSource),.shamt(ID_EX_Rs2),.r(AluOut),.cf(CarryFlag),
     .zf(Zflag), .vf(OverflowFlag), .sf(SignFlag), .alufn(ALUSelection));
     
@@ -215,7 +227,7 @@ module RISCV_CPU(
     .selection_bit(PCMuxSelector),.mux_out(PCInput));
     
     DataMemory dataMem(.clk(clk),.MemRead(EX_MEM_MemRead),.MemWrite(EX_MEM_MemWrite),
-    .func3(EX_MEM_Func3),.addr(EX_MEM_ALU_out),.data_in(/*EX_MEM_ALU_B*/ EX_MEM_RegR2 ),
+    .func3(EX_MEM_Func3),.addr(EX_MEM_ALU_out),.data_in(EX_MEM_ALU_B ),
     .data_out(MemOut));
     
     // MEM_WB

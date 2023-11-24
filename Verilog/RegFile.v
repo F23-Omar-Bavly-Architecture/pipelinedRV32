@@ -27,7 +27,7 @@ module RegFile #(parameter N =32)(
     
     reg [N-1:0] reg_file[31:0];
     integer j;
-    always @(posedge clk) begin //if async add 
+    always @(negedge  clk) begin //if async add 
         if(rst) begin
             for(j=0;j<32;j=j+1) begin 
                 reg_file[j]<=0;
