@@ -15,7 +15,7 @@
 
 module RISCV_CPU_tb();
 
-    localparam period = 100;
+    localparam period = 200;
     reg clk;
     reg reset;
     reg [1:0] ledSel;
@@ -35,7 +35,7 @@ module RISCV_CPU_tb();
         reset =1;
         #(period);
         reset =0;
-        #(period*100);
+        #(period*200);
        
         
         $finish;

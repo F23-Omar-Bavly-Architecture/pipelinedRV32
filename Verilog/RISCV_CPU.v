@@ -131,7 +131,7 @@ module RISCV_CPU(
     
 //    wire [4:0] EX_MEM_Ctrl_Input;
 //    assign EX_MEM_Ctrl_Input = PCSrc? 5'd0 : {ID_EX_RegWrite, ID_EX_MemtoReg, ID_EX_Branch, ID_EX_MemRead, ID_EX_MemWrite};
-    
+    wire [31:0] ALU_B;
     NBitRegister #(214) EX_MEM (.clk(clk),.rst(rst),.load(1'b1),
     .D({/*EX_MEM_Ctrl_Input*/ID_EX_RegWrite, ID_EX_MemtoReg, ID_EX_Branch, 
     ID_EX_MemRead, ID_EX_MemWrite, BranchTarget, Zflag, AluOut, ALU_B, ID_EX_Rd, ID_EX_rfWriteSelect,
@@ -186,16 +186,17 @@ module RISCV_CPU(
     
 //    wire [31:0] ALU_A;
 //    Mux4x1 ALU_A_Mux(.mux_input_3(/*Ignore*/), .mux_input_2(EX_MEM_ALU_out), .mux_input_1(RegFileInputData), .mux_input_0(ID_EX_RegR1), .selection_bits(forwardA), .mux_out(ALU_A));
-    
+//    wire [31:0] ALU_B;
+    assign ALU_B = 32'b0;
 //     Mux4x1 ALU_B_Mux(.mux_input_3(/*Ignore*/), .mux_input_2(EX_MEM_ALU_out), .mux_input_1(RegFileInputData), .mux_input_0(ID_EX_RegR2), .selection_bits(forwardB), .mux_out(ALU_B));
     NBit2x1Mux #(32) RegMux(.mux_input_1(ID_EX_Imm),.mux_input_0(ID_EX_RegR2),
-    .selection_bit(ALUSrc),.mux_out(Alu2ndSource));
+    .selection_bit(ID_EX_ALUSrc),.mux_out(Alu2ndSource));
     
     ALU_32_bit ALU_32_bit_inst(.instruction5(ID_EX_Inst_5),.a(/*ALU_A*/ID_EX_RegR1),
     .b(Alu2ndSource),.shamt(ID_EX_Rs2),.r(AluOut),.cf(CarryFlag),
     .zf(Zflag), .vf(OverflowFlag), .sf(SignFlag), .alufn(ALUSelection));
     
-    BranchControlUnit BranchControlUnit_inst(.Branch(Branch),.cf(CarryFlag),
+    BranchControlUnit BranchControlUnit_inst(.Branch(ID_EX_Branch),.cf(CarryFlag),
     .zf(Zflag),.vf(OverflowFlag),.sf(SignFlag),.func3(ID_EX_Func[2:0]),
     .branchMuxSelect(branchMuxSelect));
     
@@ -210,7 +211,7 @@ module RISCV_CPU(
     NBit2x1Mux #(32) PCMuxSecondSourceMux(.mux_input_1(EX_MEM_ALU_out),.mux_input_0(EX_MEM_BranchTarget),
     .selection_bit(PCMuxSecondSourceMuxSelector),.mux_out(PCSecondSource));
     
-    NBit2x1Mux #(32) PCMux(.mux_input_1(PCSecondSource),.mux_input_0(EX_MEM_Pc4Out),
+    NBit2x1Mux #(32) PCMux(.mux_input_1(PCSecondSource),.mux_input_0(Pc4Out),
     .selection_bit(PCMuxSelector),.mux_out(PCInput));
     
     DataMemory dataMem(.clk(clk),.MemRead(EX_MEM_MemRead),.MemWrite(EX_MEM_MemWrite),

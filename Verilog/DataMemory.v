@@ -70,5 +70,7 @@ module DataMemory(input clk, input MemRead, input MemWrite, input [2:0] func3, i
     initial begin
         //$readmemh("./hex/test1_data.hex", mem);
         {mem[3],mem[2],mem[1],mem[0]}=32'd17;
+        {mem[7],mem[6],mem[5],mem[4]}=32'd9;
+        {mem[11],mem[10],mem[9],mem[8]}=32'd25;
     end
 endmodule
