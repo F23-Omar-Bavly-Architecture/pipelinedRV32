@@ -28,7 +28,7 @@ input[12:0] BranchTarget,
 input[12:0] PCInput,
 input[12:0] Rs1Read,
 input[12:0] Rs2Read,
-input[12:0] RegFileInputData,
+input[12:0] FinalRegFileData,
 input[12:0] ImmGenOut,
 input[12:0] Alu2ndSource,
 input[12:0] AluOut,
@@ -55,7 +55,7 @@ output reg [12:0] ssd);
                 ssd= Rs2Read;
             end
             6: begin
-                ssd= RegFileInputData;
+                ssd= FinalRegFileData;
             end
             7: begin
                 ssd=  ImmGenOut;

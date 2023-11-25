@@ -20,23 +20,25 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module SingleMemory(input clk, input UsingMem, input MemRead, input MemWrite, 
+module SingleMemory(input clk, input MemRead, input MemWrite, 
 input [2:0] func3, input [31:0] addr, input [31:0] data_in, output reg [31:0] data_out
     );
     reg [7:0] mem [1024-1:0];
     
     always@(*) begin
-        if(!MemRead) begin //fetching
+        if(!(MemRead && MemWrite)) begin //fetching
             data_out = {mem[{addr[31:2],2'b11}],mem[{addr[31:2],2'b10}],mem[{addr[31:2],2'b01}],mem[{addr[31:2],2'b00}]};
         end else begin
-            case(func3)
-                0: data_out = {{24{mem[addr][7]}} , mem[addr]};
-                1: data_out = {{16{mem[addr+1][7]}},mem[addr+1],mem[addr]};
-                2: data_out = {mem[addr+3],mem[addr+2],mem[addr+1],mem[addr]};
-                4: data_out = {{24{1'b0}} , mem[addr]};
-                5: data_out = {{16{1'b0}},mem[addr+1],mem[addr]};
-                default: data_out = 0;
-            endcase
+            if(MemRead)
+                case(func3) // read
+                    0: data_out = {{24{mem[addr][7]}} , mem[addr]};
+                    1: data_out = {{16{mem[addr+1][7]}},mem[addr+1],mem[addr]};
+                    2: data_out = {mem[addr+3],mem[addr+2],mem[addr+1],mem[addr]};
+                    4: data_out = {{24{1'b0}} , mem[addr]};
+                    5: data_out = {{16{1'b0}},mem[addr+1],mem[addr]};
+                    default: data_out = 0;
+                endcase
+            else data_out = 0; // dont read
         end
     end
     
@@ -61,9 +63,9 @@ input [2:0] func3, input [31:0] addr, input [31:0] data_in, output reg [31:0] da
     
     initial begin
         
-        {mem[3],mem[2],mem[1],mem[0]}=      32'b0000000_00000_00000_000_00000_0110011;  //add x0, x0, x0
+        {mem[3],mem[2],mem[1],mem[0]}     = 32'b0000000_00000_00000_000_00000_0110011;  //add x0, x0, x0
         
-        {mem[7],mem[6],mem[5],mem[4]}=      32'b00000110010000000010000010000011; //lw x1, 100(x0) 
+        {mem[7],mem[6],mem[5],mem[4]}     = 32'b00000110010000000010000010000011; //lw x1, 100(x0) 
         
         {mem[11],mem[10],mem[9],mem[8]}   = 32'b00000110100000000010000100000011 ; //lw x2, 104(x0) 
         
@@ -79,7 +81,7 @@ input [2:0] func3, input [31:0] addr, input [31:0] data_in, output reg [31:0] da
         
         {mem[35],mem[34],mem[33],mem[32]} = 32'b00000110010100000010100000100011; //sw x5, 112(x0) 
         
-        {mem[39],mem[38],mem[37],mem[36]} = 32'b00000111000000000010001100000011 ; //lw x6, 12(x0)
+        {mem[39],mem[38],mem[37],mem[36]} = 32'b00000111000000000010001100000011 ; //lw x6, 112(x0)
         
         {mem[43],mem[42],mem[41],mem[40]} = 32'b0000000_00001_00110_111_00111_0110011 ; //and x7, x6, x1 
         
