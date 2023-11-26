@@ -23,10 +23,11 @@
 module SingleMemory(input clk, input MemRead, input MemWrite, 
 input [2:0] func3, input [31:0] addr, input [31:0] data_in, output reg [31:0] data_out
     );
-    reg [7:0] mem [1024-1:0];
+//    reg [7:0] mem [1024-1:0];
+    reg [7:0] mem [0:1024-1];
     
     always@(*) begin
-        if(!(MemRead && MemWrite)) begin //fetching
+        if(!(MemRead || MemWrite)) begin //fetching
             data_out = {mem[{addr[31:2],2'b11}],mem[{addr[31:2],2'b10}],mem[{addr[31:2],2'b01}],mem[{addr[31:2],2'b00}]};
         end else begin
             if(MemRead)
@@ -166,9 +167,9 @@ input [2:0] func3, input [31:0] addr, input [31:0] data_in, output reg [31:0] da
         //I-type
         
         //ADDI
-        {mem[155],mem[154],mem[153],mem[152]} = 32'b00000100010100000000111100010011; //addi x30, x0, 69        
-        {mem[159],mem[158],mem[157],mem[156]} = 32'b11111111111100000000111100010011; //addi x30, x0, -1        
-        {mem[163],mem[162],mem[161],mem[160]} = 32'b00000000000000101000111100010011; //addi x30, x5, 0         32 +0
+        {mem[155],mem[154],mem[153],mem[152]} = 32'b00000100010100000000111100010011; //addi x30, x0, 69        x30 = 69
+        {mem[159],mem[158],mem[157],mem[156]} = 32'b11111111111100000000111100010011; //addi x30, x0, -1        x30 = -1
+        {mem[163],mem[162],mem[161],mem[160]} = 32'b00000000000000101000111100010011; //addi x30, x5, 0         x30 = 32 + 0
         
         //SLTI
         {mem[167],mem[166],mem[165],mem[164]} = 32'b00000010000000101010111010010011; //slti x29, x5, 32  false
