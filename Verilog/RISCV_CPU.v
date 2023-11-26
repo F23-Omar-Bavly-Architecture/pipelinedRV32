@@ -111,15 +111,17 @@ module RISCV_CPU(
     
     wire [4:0] IF_ID_Inst_Opcode;
     assign IF_ID_Inst_Opcode = ( PCMuxSelector || stall )? 5'd0 : IF_ID_Inst[`IR_opcode];
-
-    NBitRegister #(195)  ID_EX( .clk(clk),.rst(rst),.load( !ebreak), 
+    
+    wire ID_EX_Inst25;
+    
+    NBitRegister #(196)  ID_EX( .clk(clk),.rst(rst),.load( !ebreak), 
     .D({ID_EX_Ctrl, rfWriteSelect, IF_ID_PC, Rs1Read , Rs2Read, ImmGenOut, IF_ID_Inst[30],
      IF_ID_Inst[`IR_funct3], IF_ID_Inst[`IR_rs1], IF_ID_Inst[`IR_rs2], IF_ID_Inst[`IR_rd],
-     IF_ID_Inst[5], IF_ID_Inst_Opcode, IF_ID_Pc4Out}),
+     IF_ID_Inst[5], IF_ID_Inst_Opcode, IF_ID_Pc4Out, IF_ID_Inst[25]}),
     .Q({ID_EX_RegWrite, ID_EX_MemtoReg, ID_EX_Branch, ID_EX_MemRead, 
     ID_EX_MemWrite, ID_EX_ALUOp, ID_EX_ALUSrc, ID_EX_rfWriteSelect,ID_EX_PC,ID_EX_RegR1,
     ID_EX_RegR2,ID_EX_Imm, ID_EX_Func,ID_EX_Rs1,ID_EX_Rs2,ID_EX_Rd,
-    ID_EX_Inst_5, ID_EX_Inst_Opcode, ID_EX_Pc4Out}));
+    ID_EX_Inst_5, ID_EX_Inst_Opcode, ID_EX_Pc4Out, ID_EX_Inst25}));
 
     wire [1:0] forwardA;
     wire [1:0] forwardB;
@@ -239,7 +241,8 @@ module RISCV_CPU(
     
     ALU_32_bit ALU_32_bit_inst(.instruction5(ID_EX_Inst_5),.a(ALU_A),
     .b(Alu2ndSource),.shamt(ID_EX_Rs2),.r(AluOut),.cf(CarryFlag),
-    .zf(Zflag), .vf(OverflowFlag), .sf(SignFlag), .alufn(ALUSelection));
+    .zf(Zflag), .vf(OverflowFlag), .sf(SignFlag), .alufn(ALUSelection),
+    .func3(ID_EX_Func[2:0]), .instruction25(ID_EX_Inst25),.OpCode(ID_EX_Inst_Opcode ));
     
     BranchControlUnit BranchControlUnit_inst(.Branch(ID_EX_Branch),.cf(CarryFlag),
     .zf(Zflag),.vf(OverflowFlag),.sf(SignFlag),.func3(ID_EX_Func[2:0]),
