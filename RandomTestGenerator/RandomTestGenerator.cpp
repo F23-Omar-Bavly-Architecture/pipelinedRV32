@@ -1,3 +1,38 @@
+#include<iostream>
+#include<vector>
+
+using namespace std;
+//write me a function that takes in a number and returns a string of binary
+string toBinary(int n, int length)
+{
+    string r;
+    while(n!=0) {r=(n%2==0 ?"0":"1")+r; n/=2;}
+    while(r.length() < length)
+    {
+        r = "0" + r;
+    }
+    return r;
+}
+
+int main()
+{
+vector<string> randomOPCODE = {"0110111", "0010111","1101111","1100111","1100011","0000011", "0100011" , "0010011", "0110011","0001111","1110011"};
+vector<string> randomFUNCT3B = {"000", "001", "011", "100", "101", "110", "111"};
+vector<string> randomFUNCT3L = {"000", "001", "010", "100", "101"};
+vector<string> randomFUNCT3S = {"000", "001", "010"};
+vector<string> randomFUNCT3I = {"000", "010", "011", "100", "110", "111"};
+vector<string> randomFUNCT3R = {"000", "001", "010", "011", "100", "101", "110", "111"};
+
+
+vector<string> randomFUNCT3J = {"000", "001", "010", "011", "100", "101", "110", "111"};
+
+//vector<string> randomFUNCT7 = {"0000000", "0000001", "0000010", "0000011", "0000100", "0000101", "0000110", "0000111"};
+string opcode;
+string FinalOutput;
+string U_IMM, I_IMM, S_IMM, B_IMM, J_IMM;
+string Rd, rs1, rs2;
+string shamt;
+
 for(int i=0; i<100; i++)
 {
     int random = rand() % 10;
