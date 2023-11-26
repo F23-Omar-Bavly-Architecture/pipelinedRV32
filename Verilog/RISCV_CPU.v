@@ -70,7 +70,7 @@ module RISCV_CPU(
     
     wire stall;
     wire ebreak;
-    assign ebreak = (instruction[`IR_opcode] == `OPCODE_SYSTEM) && instruction[20];
+    assign ebreak = (EX_MEM_Inst_Opcode == `OPCODE_SYSTEM) && EX_MEM_Rs2[0];
     
     
     wire stall_n;
@@ -82,7 +82,7 @@ module RISCV_CPU(
     assign InstOrFlush = ( PCMuxSelector || ( EX_MEM_MemRead || EX_MEM_MemWrite ) || ebreak )? 32'b00000000000000000000000000110011:instruction;
     
     
-    NBitRegister #(96) IF_ID (.clk(clk),.rst(rst),.load(stall_n), 
+    NBitRegister #(96) IF_ID (.clk(clk),.rst(rst),.load(stall_n && !ebreak ), 
     .D({PCOutput, InstOrFlush, Pc4Out}),.Q({IF_ID_PC,IF_ID_Inst,IF_ID_Pc4Out}));
     
     wire ID_EX_MemRead;
@@ -112,7 +112,7 @@ module RISCV_CPU(
     wire [4:0] IF_ID_Inst_Opcode;
     assign IF_ID_Inst_Opcode = ( PCMuxSelector || stall )? 5'd0 : IF_ID_Inst[`IR_opcode];
 
-    NBitRegister #(195)  ID_EX( .clk(clk),.rst(rst),.load(1'b1), 
+    NBitRegister #(195)  ID_EX( .clk(clk),.rst(rst),.load( !ebreak), 
     .D({ID_EX_Ctrl, rfWriteSelect, IF_ID_PC, Rs1Read , Rs2Read, ImmGenOut, IF_ID_Inst[30],
      IF_ID_Inst[`IR_funct3], IF_ID_Inst[`IR_rs1], IF_ID_Inst[`IR_rs2], IF_ID_Inst[`IR_rd],
      IF_ID_Inst[5], IF_ID_Inst_Opcode, IF_ID_Pc4Out}),
@@ -161,7 +161,7 @@ module RISCV_CPU(
     assign ID_EX_Inst_Opcode_OrFlush = PCMuxSelector ? 5'd0 : ID_EX_Inst_Opcode;
     
     
-    NBitRegister #(219) EX_MEM (.clk(clk),.rst(rst),.load(1'b1),
+    NBitRegister #(219) EX_MEM (.clk(clk),.rst(rst),.load(!ebreak),
     .D({EX_MEM_Ctrl_Input, BranchTarget, Zflag, AluOut, ALU_B, ID_EX_Rd, ID_EX_rfWriteSelect,
     ID_EX_Inst_Opcode_OrFlush, ID_EX_Pc4Out, ID_EX_branchMuxSelect, ID_EX_Func[2:0], ID_EX_RegR2, ID_EX_Imm, ID_EX_Rs2}),
     .Q({EX_MEM_RegWrite, EX_MEM_MemtoReg, EX_MEM_Branch, EX_MEM_MemRead, 
@@ -181,7 +181,7 @@ module RISCV_CPU(
     .Q({MEM_WB_RegWrite, MEM_WB_MemtoReg, MEM_WB_Mem_out, MEM_WB_ALU_out,MEM_WB_Rd, MEM_WB_rfWriteSelect,
     MEM_WB_Pc4Out, MEM_WB_BranchTarget, MEM_WB_Imm}));
 
-    NBitRegister #(32) PC(.clk(clk),.rst(rst),.load(PCWrite && stall_n && !( EX_MEM_MemRead || EX_MEM_MemWrite ) && !ebreak),.D(PCInput),.Q(PCOutput));
+    NBitRegister #(32) PC(.clk(clk),.rst(rst),.load(/*PCWrite &&*/ stall_n && !( EX_MEM_MemRead || EX_MEM_MemWrite ) && !ebreak),.D(PCInput),.Q(PCOutput));
     
 //    NbitRCA #(32) add4ToPC(.input_1(PCOutput),.input_0(`THIRTYTWO_FOUR),
 //    .Carry_in(`SINGLE_BIT_ZERO),.Sum(Pc4Out),.Carry_out(/*ignore*/));
