@@ -16,6 +16,7 @@
 module ALUControlUnit(
     input [1:0] ALUOp,
     input [14:12] func3,
+    input instruction5,
     input inst30,
     output reg [3:0] ALUSelection
     );
@@ -64,7 +65,7 @@ module ALUControlUnit(
             end*/
             case(func3)
                 0: begin
-                    ALUSelection = inst30? `ALU_SUB : `ALU_ADD;
+                    ALUSelection = (inst30 && instruction5)? `ALU_SUB : `ALU_ADD;
                 end
                 1: begin
                     ALUSelection = `ALU_SLL;

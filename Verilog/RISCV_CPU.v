@@ -211,7 +211,7 @@ module RISCV_CPU(
     // ID_EX
     
     ALUControlUnit ALUControlUnit_inst(.ALUOp(ID_EX_ALUOp),.func3(ID_EX_Func[2:0]),
-    .inst30(ID_EX_Func[3]),.ALUSelection(ALUSelection)/*,.instruction5(ID_EX_Inst_5)*/);
+    .inst30(ID_EX_Func[3]),.ALUSelection(ALUSelection),.instruction5(ID_EX_Inst_5));
     
 //    NbitRCA #(32) PCBranchCalc(.input_1(ID_EX_PC),.input_0(ID_EX_Imm),.Carry_in(1'b0),
 //    .Sum(BranchTarget),.Carry_out(/*ignore*/));    
