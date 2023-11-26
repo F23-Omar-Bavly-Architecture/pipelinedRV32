@@ -170,7 +170,10 @@ module RISCV_CPU(
         
     // IF_ID REG
     
-    ControlUnit ControlUnit_inst(.inst20(IF_ID_Inst[20]),.instruction_opcode(IF_ID_Inst[`IR_opcode]),
+    wire [4:0] IF_ID_Opcode;
+    assign IF_ID_Opcode = (PCOutput == 0)? `OPCODE_Arith_I : IF_ID_Inst[`IR_opcode];
+    
+    ControlUnit ControlUnit_inst(.inst20(IF_ID_Inst[20]),.instruction_opcode(IF_ID_Opcode),
     .Branch(Branch),.MemRead(MemRead),.MemtoReg(MemtoReg),.ALUOp(ALUOp),
     .MemWrite(MemWrite),.ALUSrc(ALUSrc),.RegWrite(RegWrite),.PCWrite(PCWrite),
     .rfWriteSelect(rfWriteSelect));
@@ -186,7 +189,7 @@ module RISCV_CPU(
     // ID_EX
     
     ALUControlUnit ALUControlUnit_inst(.ALUOp(ID_EX_ALUOp),.func3(ID_EX_Func[2:0]),
-    .inst30(ID_EX_Func[3]),.ALUSelection(ALUSelection),.instruction5(ID_EX_Inst_5));
+    .inst30(ID_EX_Func[3]),.ALUSelection(ALUSelection)/*,.instruction5(ID_EX_Inst_5)*/);
     
 //    NbitRCA #(32) PCBranchCalc(.input_1(ID_EX_PC),.input_0(ID_EX_Imm),.Carry_in(1'b0),
 //    .Sum(BranchTarget),.Carry_out(/*ignore*/));    

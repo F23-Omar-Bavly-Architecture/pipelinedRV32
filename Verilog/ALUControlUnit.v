@@ -15,7 +15,6 @@
 
 module ALUControlUnit(
     input [1:0] ALUOp,
-    input instruction5,
     input [14:12] func3,
     input inst30,
     output reg [3:0] ALUSelection
@@ -28,7 +27,7 @@ module ALUControlUnit(
         end else if(ALUOp == 2'b01) begin
             ALUSelection = `ALU_SUB;
         end else if(ALUOp ==2'b10) begin // aluop 10
-            if(instruction5) begin
+            /*if(instruction5) begin
                 case(caseSelector)
                     4'b0000: ALUSelection = `ALU_ADD;
                     4'b0001: ALUSelection = `ALU_SUB;
@@ -62,7 +61,34 @@ module ALUControlUnit(
                     default: ALUSelection = `ALU_PASS;
                 endcase
             
-            end
+            end*/
+            case(func3)
+                0: begin
+                    ALUSelection = inst30? `ALU_SUB : `ALU_ADD;
+                end
+                1: begin
+                    ALUSelection = `ALU_SLL;
+                end
+                2: begin
+                    ALUSelection = `ALU_SLT;
+                end
+                3: begin
+                    ALUSelection = `ALU_SLTU;
+                end
+                4: begin
+                    ALUSelection = `ALU_XOR;
+                end
+                5: begin
+                    ALUSelection = inst30? `ALU_SRA: `ALU_SRL;
+                end
+                6: begin
+                    ALUSelection = `ALU_OR;
+                end
+                7: begin
+                    ALUSelection = `ALU_AND;
+                end
+                default ALUSelection = `ALU_PASS;
+            endcase 
         end else begin
             ALUSelection = `ALU_PASS;
         end
