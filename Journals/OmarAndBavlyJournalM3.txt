@@ -1,0 +1,30 @@
+﻿November 22, 8 pm We started working on the project and made a plan of what we will due during this milestone along with some refactoring and beatification of the last milestone code as well as starting the diagram
+
+
+
+
+November 23, 1 pm We start implementing the pipeline.
+
+
+November 23, 4 pm Added pipeline signals + fixes
+
+
+November 23, 9 pm finished pipeline the cpu without any testing + updated diagram
+
+
+November 24, 2 pm We tested the pipeline and fix any issues that arise
+
+
+November 24, 8 pm We catch up to lab eight, which includes all the hazard detection. As well as updating the diagram with the changes
+
+
+November 24, 11 pm We create a single memory module without implementing it
+
+
+November 25, 4 pm We start implementing the single memory
+
+
+November 26, 2 pm We fixed some edge cases 
+
+
+November 26, 9 pm We tested all instructions and updated the diagram to match the full implementation
